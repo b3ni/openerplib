@@ -99,4 +99,8 @@ foreach($p->departament_ids('name', 'address_id') as $d)	// res.partner.departam
 
 openerplib is written by:
 
-* Benito Rodriguez / brarcos@gmail.com
+* Benito Rodriguez
+
+Para cualquier sugerencia, bugs,...
+
+brarcos@gmail.com
