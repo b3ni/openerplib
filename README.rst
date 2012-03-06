@@ -22,3 +22,5 @@ donde ser quiera utilizar e importar a tu script php.
 
 Usage
 =====
+
+Configurar fichero 
