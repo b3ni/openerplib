@@ -1,6 +1,6 @@
 # openerplib
 
-openerplib es una librería para PHP que permite realizar operaciones xml-rpc con OpenERP 
+openerplib es una librería para PHP que permite realizar operaciones xml-rpc con [OpenERP](http://www.openerp.com/)
 cómodamente.
 
 Está inspirada en ORM de [Django](https://www.djangoproject.com/)
