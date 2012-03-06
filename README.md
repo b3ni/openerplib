@@ -83,9 +83,8 @@ Dos forma de uso.
 ### Búsquedas
 
 
-Contacts
-========
+## Contacts
 
 openerplib is written by:
 
-* Benito Rodriguez brarcos@gmail.com
+* Benito Rodriguez / brarcos@gmail.com
