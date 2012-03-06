@@ -31,12 +31,12 @@ Dos forma de uso.
 
 	<?php
 		$config = array(
-		    'bd'        => 'mybdname',
-		    'uid'       => 1212,
-		    'passwd'    => 'foo',
-		    'url'       => 'http://openerp/xmlrpc',
-	    );
-		
+			'bd'        => 'mybdname',
+			'uid'       => 1212,
+			'passwd'    => 'foo',
+			'url'       => 'http://openerp/xmlrpc',
+		);
+	
 		$open = new OpenERP($config);
 	?>
 
