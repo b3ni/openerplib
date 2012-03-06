@@ -20,7 +20,7 @@ donde ser quiera utilizar e importar a tu script php.
 
 Dos forma de uso.
 
-1. Configurar fichero /openerplib/openerplib.inc.php
+### Configurar fichero /openerplib/openerplib.inc.php
 
 ```php
 define('_OPENERPLIB_BD_', '');
@@ -29,7 +29,7 @@ define('_OPENERPLIB_PASSWD_', '');
 define('_OPENERPLIB_URL_', 'http://<URL>/xmlrpc');
 ```
 
-2. Configuración on-live.
+### Configuración on-live.
 
 ```php
 <?php
