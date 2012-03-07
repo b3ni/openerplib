@@ -132,6 +132,10 @@
 			$method_call = new ReflectionMethod('OpenERPObject', '__call');
 			return $method_call->invoke($this, $name, null);
 		}
+        
+        public function __toString() {
+            return (string) $this->id;
+        }
 
 		/**
 		 * Lee un objeto de la bd
@@ -560,6 +564,8 @@
         
         protected $client = NULL;
         
+        private $_lastobject = NULL;
+        
         public function __construct($config=NULL, $client=NULL) {
             if (isset($config)) {
                 $this->bd = $config['bd'];
@@ -585,14 +591,20 @@
             $method_call = new ReflectionMethod('OpenERPObject', '__call');
             $erpobject = $method_call->invoke($erpobject, $method, $args);
             
-            return $erpobject;
+            $this->_lastobject = $erpobject; 
+            
+            return $this->_lastobject;
         }
         
         public function __get($name) {
             $erpobject = new OpenERPObject(null, $this->client);
             
             $method_call = new ReflectionMethod('OpenERPObject', '__call');
-            return $method_call->invoke($erpobject, $name, null);
+            $erpobject = $method_call->invoke($erpobject, $name, null);
+            
+            $this->_lastobject = $erpobject;
+            
+            return $this->_lastobject;
         }
     } 
 ?>
