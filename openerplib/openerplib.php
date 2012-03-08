@@ -502,6 +502,7 @@
             switch ($field['type']) {
                 case 'char':
                 case 'text':
+                case 'selection':
                     $type = "string";                    
                     break;
                 case 'many2one':
