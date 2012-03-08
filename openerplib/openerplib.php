@@ -276,7 +276,7 @@
             $data = file_get_contents($filepath);
             
             $a = new OpenERPObject(NULL, $this->client);
-            $a = $a->ir_attachment;
+            $a = $a->ir_attachment('__ALL');
             
             $a->user_id = $this->uid;
             $a->name = $filetitle;
@@ -286,6 +286,8 @@
             $a->description = false;
             $a->index_content = false;
             $a->partner_id = false;
+            $a->res_model = $this->model;
+            $a->res_id = $this->id;
             
             return $a->save();
         }
@@ -503,9 +505,11 @@
                 case 'char':
                 case 'text':
                 case 'selection':
+                case 'binary':
                     $type = "string";                    
                     break;
-                case 'many2one':
+                case 'integer':
+                case 'many2one':                
                     $type = "int";
                     break;
                 case 'one2many':
