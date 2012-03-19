@@ -138,4 +138,4 @@ openerplib is written by:
 
 * Benito Rodriguez - brarcos@gmail.com
 
-Sugerencias, bugs, ... https://github.com/b3ni/openerplib/issues
+Sugerencias, bugs,... https://github.com/b3ni/openerplib/issues
