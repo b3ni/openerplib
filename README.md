@@ -136,8 +136,6 @@ print "<pre>". print_r($r) . "</pre>";
 
 openerplib is written by:
 
-* Benito Rodriguez
+* Benito Rodriguez - brarcos@gmail.com
 
 Sugerencias, bugs, ... https://github.com/b3ni/openerplib/issues
-
-brarcos@gmail.com
