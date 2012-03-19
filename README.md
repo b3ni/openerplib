@@ -94,6 +94,43 @@ foreach($p->departament_ids('name', 'address_id') as $d)	// res.partner.departam
 	
 ### Búsquedas
 
+```php
+$fields = array('street', 'email');
+$results = $open->res_partner_address($fields)->search('email', '=', 'foo@bar.com');
+foreach ($results as $id => $address) {
+	print "<h1>" . $id . "</h1>";
+	print "<pre>" . $address->info() . "</pre>";
+	print "<hr>";
+}
+```
+
+### Updates
+
+```php
+$p = $open->res_partner('name', 'active')->get(1);
+$p->name = 'FOO';
+$p->save();
+```
+
+### Create
+
+```php
+$crm = $open->crm_case;
+$crm->name = 'TEST';
+$crm->section_id = 10;
+$crm->email_from = 'foo@bar.com';
+$id = $crm->save();
+print $id ? "<h1>OK: ".$id."</h1>" : "<h1>ERROR</h1><pre>". $crm->getError() . "</pre>";
+```
+
+
+### Ejecutar Métodos
+
+```php
+$crm = $open->crm_case->get(39806);
+$r = $crm->workflow('case_open');
+print "<pre>". print_r($r) . "</pre>";
+```
 
 ## Contacts
 
