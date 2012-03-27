@@ -3,6 +3,8 @@
 	 * This file is part of the openerplib.
 	 *
 	 * (c) Benito Rodriguez <brarcos@gmail.com>
+	 * 
+	 * https://github.com/b3ni/openerplib
 	 *
 	 * For the full copyright and license information, please view the LICENSE
 	 * file that was distributed with this source code.
@@ -370,7 +372,7 @@
 					array(
 						new xmlrpcval($field, "string"),
 						new xmlrpcval($operator, "string"),
-						new xmlrpcval($value, "string")
+						new xmlrpcval($value, $this->is_load ? $this->_getType2Save($this->fields[$field]) : "string")
 					),
 					"array"
 				),
