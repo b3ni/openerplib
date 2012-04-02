@@ -1,0 +1,227 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>OpenERP Lib by b3ni</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/main.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+  </head>
+  <body>
+
+      <header>
+        <h1>OpenERP Lib</h1>
+        <p>XML-RPC php library for OpenERP inspired by Django</p>
+      </header>
+
+      <div id="banner">
+        <span id="logo"></span>
+
+        <a href="https://github.com/b3ni/openerplib" class="button fork"><strong>Fork On GitHub</strong></a>
+        <div class="downloads">
+          <span>Downloads:</span>
+          <ul>
+            <li><a href="https://github.com/b3ni/openerplib/zipball/master" class="button">ZIP</a></li>
+            <li><a href="https://github.com/b3ni/openerplib/tarball/master" class="button">TAR</a></li>
+          </ul>
+        </div>
+
+      </div><!-- end banner -->
+
+    <div class="wrapper">
+      <nav>
+        <ul></ul>
+      </nav>
+      <section>
+        <p>openerplib es una librería para PHP que permite realizar operaciones xml-rpc con <a href="http://www.openerp.com/">OpenERP</a>
+cómodamente.</p>
+
+<p>Está inspirada en ORM de <a href="https://www.djangoproject.com/">Django</a></p>
+
+<h2>Requeriments</h2>
+
+<p>openerlib depende de:</p>
+
+<ul>
+<li>xmlrpc.inc &gt;= 1.174 <a href="http://phpxmlrpc.sourceforge.net/">http://phpxmlrpc.sourceforge.net/</a> (incluida)</li>
+</ul><h2>Installation</h2>
+
+<p>No requiere ningún tipo de instalación especial. Copiar directorio /openerplib 
+donde ser quiera utilizar e importar a tu script php.</p>
+
+<h2>Configuration</h2>
+
+<p>Dos forma de uso.</p>
+
+<h3>Configurar fichero /openerplib/openerplib.inc.php</h3>
+
+<div class="highlight">
+<pre><span class="cp">&lt;?php</span>
+    <span class="nb">define</span><span class="p">(</span><span class="s1">'_OPENERPLIB_BD_'</span><span class="p">,</span> <span class="s1">''</span><span class="p">);</span>
+    <span class="nb">define</span><span class="p">(</span><span class="s1">'_OPENERPLIB_UID_'</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+    <span class="nb">define</span><span class="p">(</span><span class="s1">'_OPENERPLIB_PASSWD_'</span><span class="p">,</span> <span class="s1">''</span><span class="p">);</span>
+    <span class="nb">define</span><span class="p">(</span><span class="s1">'_OPENERPLIB_URL_'</span><span class="p">,</span> <span class="s1">'http://&lt;URL&gt;/xmlrpc'</span><span class="p">);</span>
+<span class="cp">?&gt;</span><span class="x"></span>
+</pre>
+</div>
+
+
+<h3>Configuración on-live.</h3>
+
+<div class="highlight">
+<pre><span class="cp">&lt;?php</span>
+    <span class="nv">$config</span> <span class="o">=</span> <span class="k">array</span><span class="p">(</span>
+        <span class="s1">'bd'</span>        <span class="o">=&gt;</span> <span class="s1">'mybdname'</span><span class="p">,</span>
+        <span class="s1">'uid'</span>       <span class="o">=&gt;</span> <span class="mi">1212</span><span class="p">,</span>
+        <span class="s1">'passwd'</span>    <span class="o">=&gt;</span> <span class="s1">'foo'</span><span class="p">,</span>
+        <span class="s1">'url'</span>       <span class="o">=&gt;</span> <span class="s1">'http://openerp/xmlrpc'</span><span class="p">,</span>
+    <span class="p">);</span>
+
+    <span class="nv">$open</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">OpenERP</span><span class="p">(</span><span class="nv">$config</span><span class="p">);</span>
+<span class="cp">?&gt;</span><span class="x"></span>
+</pre>
+</div>
+
+
+<h2>Usage</h2>
+
+<h3>Creando la factoria de objetos OpenERP</h3>
+
+<div class="highlight">
+<pre><span class="cp">&lt;?php</span>
+    <span class="nv">$open</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">OpenERP</span><span class="p">();</span>  <span class="c1">// read config =&gt; openerlib.inc.php</span>
+<span class="cp">?&gt;</span><span class="x"></span>
+</pre>
+</div>
+
+
+<h3>Leyendo objetos por id de objeto.</h3>
+
+<div class="highlight">
+<pre><span class="cp">&lt;?php</span>
+    <span class="c1">// lee objecto res.partner con id 1 (solamente lee la propiedad 'id')</span>
+    <span class="nv">$p</span> <span class="o">=</span> <span class="nv">$open</span><span class="o">-&gt;</span><span class="na">res_partner</span><span class="o">-&gt;</span><span class="na">get</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="k">print</span> <span class="nv">$p</span><span class="o">-&gt;</span><span class="na">id</span><span class="p">;</span>
+
+    <span class="c1">// lee objecto res.partner con id 1 y algunas de sus propiedades</span>
+    <span class="nv">$p</span> <span class="o">=</span> <span class="nv">$open</span><span class="o">-&gt;</span><span class="na">res_partner</span><span class="p">(</span><span class="s1">'name'</span><span class="p">,</span> <span class="s1">'active'</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">get</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="k">print</span> <span class="nv">$p</span><span class="o">-&gt;</span><span class="na">id</span><span class="p">;</span>
+    <span class="k">print</span> <span class="nv">$p</span><span class="o">-&gt;</span><span class="na">name</span> <span class="o">.</span> <span class="s2">" "</span><span class="o">.</span> <span class="nv">$p</span><span class="o">-&gt;</span><span class="na">active</span><span class="p">;</span>
+
+    <span class="nv">$p</span> <span class="o">=</span> <span class="nv">$open</span><span class="o">-&gt;</span><span class="na">res_partner</span><span class="p">(</span><span class="k">array</span><span class="p">(</span><span class="s1">'name'</span><span class="p">,</span> <span class="s1">'active'</span><span class="p">))</span><span class="o">-&gt;</span><span class="na">get</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="k">print</span> <span class="nv">$p</span><span class="o">-&gt;</span><span class="na">id</span><span class="p">;</span>
+    <span class="k">print</span> <span class="nv">$p</span><span class="o">-&gt;</span><span class="na">name</span> <span class="o">.</span> <span class="s2">" "</span><span class="o">.</span> <span class="nv">$p</span><span class="o">-&gt;</span><span class="na">active</span><span class="p">;</span>
+
+    <span class="c1">// lee objecto res.partner con id 1, todos sus propiedades</span>
+    <span class="nv">$p</span> <span class="o">=</span> <span class="nv">$open</span><span class="o">-&gt;</span><span class="na">res_partner</span><span class="p">(</span><span class="s1">'__ALL'</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">get</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="k">print</span> <span class="nv">$p</span><span class="o">-&gt;</span><span class="na">id</span><span class="p">;</span>
+    <span class="k">print</span> <span class="nv">$p</span><span class="o">-&gt;</span><span class="na">name</span> <span class="o">.</span> <span class="s2">" "</span><span class="o">.</span> <span class="nv">$p</span><span class="o">-&gt;</span><span class="na">ref</span> <span class="o">.</span> <span class="s2">" "</span> <span class="o">.</span> <span class="nv">$p</span><span class="o">-&gt;</span><span class="na">vat</span><span class="p">;</span>
+<span class="cp">?&gt;</span><span class="x"></span>
+</pre>
+</div>
+
+
+<h3>Navegando por objectos con many2one OpenERP</h3>
+
+<div class="highlight">
+<pre><span class="cp">&lt;?php</span>
+    <span class="nv">$p</span> <span class="o">=</span> <span class="nv">$open</span><span class="o">-&gt;</span><span class="na">res_partner</span><span class="p">(</span><span class="s1">'country'</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">get</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="k">print</span> <span class="nv">$p</span><span class="o">-&gt;</span><span class="na">id</span><span class="p">;</span>
+    <span class="k">print</span> <span class="nv">$p</span><span class="o">-&gt;</span><span class="na">country</span><span class="o">-&gt;</span><span class="na">id</span><span class="p">;</span>  <span class="c1">// many2one =&gt; res.country</span>
+    <span class="k">print</span> <span class="nv">$p</span><span class="o">-&gt;</span><span class="na">country</span><span class="p">(</span><span class="s1">'name'</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">name</span><span class="p">;</span>
+<span class="cp">?&gt;</span><span class="x"></span>
+</pre>
+</div>
+
+
+<h3>Navegando por objectos con one2many OpenERP</h3>
+
+<div class="highlight">
+<pre><span class="cp">&lt;?php</span>
+    <span class="nv">$p</span> <span class="o">=</span> <span class="nv">$open</span><span class="o">-&gt;</span><span class="na">res_partner</span><span class="p">(</span><span class="s1">'departament_ids'</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">get</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="k">print</span> <span class="s2">"Departaments of "</span> <span class="o">.</span> <span class="nv">$p</span><span class="o">-&gt;</span><span class="na">id</span><span class="p">;</span> 
+    <span class="k">foreach</span><span class="p">(</span><span class="nv">$p</span><span class="o">-&gt;</span><span class="na">departament_ids</span><span class="p">(</span><span class="s1">'name'</span><span class="p">,</span> <span class="s1">'address_id'</span><span class="p">)</span> <span class="k">as</span> <span class="nv">$d</span><span class="p">)</span>    <span class="c1">// res.partner.departament</span>
+        <span class="k">print</span> <span class="nv">$d</span><span class="o">-&gt;</span><span class="na">name</span> <span class="o">.</span> <span class="s2">" "</span> <span class="o">.</span> <span class="nv">$d</span><span class="o">-&gt;</span><span class="na">address_id</span><span class="o">-&gt;</span><span class="na">id</span><span class="p">;</span>
+<span class="cp">?&gt;</span><span class="x"></span>
+</pre>
+</div>
+
+
+<h3>Búsquedas</h3>
+
+<div class="highlight">
+<pre><span class="cp">&lt;?php</span>
+    <span class="nv">$fields</span> <span class="o">=</span> <span class="k">array</span><span class="p">(</span><span class="s1">'street'</span><span class="p">,</span> <span class="s1">'email'</span><span class="p">);</span>
+    <span class="nv">$results</span> <span class="o">=</span> <span class="nv">$open</span><span class="o">-&gt;</span><span class="na">res_partner_address</span><span class="p">(</span><span class="nv">$fields</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">search</span><span class="p">(</span><span class="s1">'email'</span><span class="p">,</span> <span class="s1">'='</span><span class="p">,</span> <span class="s1">'foo@bar.com'</span><span class="p">);</span>
+    <span class="k">foreach</span> <span class="p">(</span><span class="nv">$results</span> <span class="k">as</span> <span class="nv">$id</span> <span class="o">=&gt;</span> <span class="nv">$address</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">print</span> <span class="s2">"&lt;h1&gt;"</span> <span class="o">.</span> <span class="nv">$id</span> <span class="o">.</span> <span class="s2">"&lt;/h1&gt;"</span><span class="p">;</span>
+        <span class="k">print</span> <span class="s2">"&lt;pre&gt;"</span> <span class="o">.</span> <span class="nv">$address</span><span class="o">-&gt;</span><span class="na">info</span><span class="p">()</span> <span class="o">.</span> <span class="s2">"&lt;/pre&gt;"</span><span class="p">;</span>
+        <span class="k">print</span> <span class="s2">"&lt;hr&gt;"</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="cp">?&gt;</span><span class="x"></span>
+</pre>
+</div>
+
+
+<h3>Updates</h3>
+
+<div class="highlight">
+<pre><span class="cp">&lt;?php</span>
+    <span class="nv">$p</span> <span class="o">=</span> <span class="nv">$open</span><span class="o">-&gt;</span><span class="na">res_partner</span><span class="p">(</span><span class="s1">'name'</span><span class="p">,</span> <span class="s1">'active'</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">get</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="nv">$p</span><span class="o">-&gt;</span><span class="na">name</span> <span class="o">=</span> <span class="s1">'FOO'</span><span class="p">;</span>
+    <span class="nv">$p</span><span class="o">-&gt;</span><span class="na">save</span><span class="p">();</span>
+<span class="cp">?&gt;</span><span class="x"></span>
+</pre>
+</div>
+
+
+<h3>Create</h3>
+
+<div class="highlight">
+<pre><span class="cp">&lt;?php</span>
+    <span class="nv">$crm</span> <span class="o">=</span> <span class="nv">$open</span><span class="o">-&gt;</span><span class="na">crm_case</span><span class="p">;</span>
+    <span class="nv">$crm</span><span class="o">-&gt;</span><span class="na">name</span> <span class="o">=</span> <span class="s1">'TEST'</span><span class="p">;</span>
+    <span class="nv">$crm</span><span class="o">-&gt;</span><span class="na">section_id</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+    <span class="nv">$crm</span><span class="o">-&gt;</span><span class="na">email_from</span> <span class="o">=</span> <span class="s1">'foo@bar.com'</span><span class="p">;</span>
+    <span class="nv">$id</span> <span class="o">=</span> <span class="nv">$crm</span><span class="o">-&gt;</span><span class="na">save</span><span class="p">();</span>
+    <span class="k">print</span> <span class="nv">$id</span> <span class="o">?</span> <span class="s2">"&lt;h1&gt;OK: "</span><span class="o">.</span><span class="nv">$id</span><span class="o">.</span><span class="s2">"&lt;/h1&gt;"</span> <span class="o">:</span> <span class="s2">"&lt;h1&gt;ERROR&lt;/h1&gt;&lt;pre&gt;"</span><span class="o">.</span> <span class="nv">$crm</span><span class="o">-&gt;</span><span class="na">getError</span><span class="p">()</span> <span class="o">.</span> <span class="s2">"&lt;/pre&gt;"</span><span class="p">;</span>
+<span class="cp">?&gt;</span><span class="x"></span>
+</pre>
+</div>
+
+
+<h3>Ejecutar Métodos</h3>
+
+<div class="highlight">
+<pre><span class="cp">&lt;?php</span>
+    <span class="nv">$crm</span> <span class="o">=</span> <span class="nv">$open</span><span class="o">-&gt;</span><span class="na">crm_case</span><span class="o">-&gt;</span><span class="na">get</span><span class="p">(</span><span class="mi">39806</span><span class="p">);</span>
+    <span class="nv">$r</span> <span class="o">=</span> <span class="nv">$crm</span><span class="o">-&gt;</span><span class="na">workflow</span><span class="p">(</span><span class="s1">'case_open'</span><span class="p">);</span>
+    <span class="k">print</span> <span class="s2">"&lt;pre&gt;"</span><span class="o">.</span> <span class="nb">print_r</span><span class="p">(</span><span class="nv">$r</span><span class="p">)</span> <span class="o">.</span> <span class="s2">"&lt;/pre&gt;"</span><span class="p">;</span>
+<span class="cp">?&gt;</span><span class="x"></span>
+</pre>
+</div>
+
+
+<h2>Contacts</h2>
+
+<p>openerplib is written by:</p>
+
+<ul>
+<li>Benito Rodriguez - brarcos@gmail.com</li>
+</ul><p>Sugerencias, bugs,... <a href="https://github.com/b3ni/openerplib/issues">https://github.com/b3ni/openerplib/issues</a></p>
+      </section>
+      <footer>
+        <p>Project maintained by <a href="https://github.com/b3ni">b3ni</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/#!/michigangraham">mattgraham</a></small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><!--<![endif]-->
+  </body>
+</html>
