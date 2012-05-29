@@ -9,8 +9,21 @@
 
 		<title>Console OpenERPlib</title>
 		<meta name="author" content="Benito Rodriguez" />
-
-		<meta name="viewport" content="width=device-width; initial-scale=1.0" />
+		
+		<style>
+			label { 
+				display: block;
+				width: 85px;
+				float: left;
+				clear: both; 
+			}
+			
+			input { 
+				float: left;
+				width: 250px;
+			}
+			
+		</style>
 	</head>
 	<body>
 		<div  style="margin: auto; width: 900px;">
@@ -19,21 +32,22 @@
 			</header>
 			
 			<form action="." method="post">
-				<div>
-					<h2>Configuración</h2>
+				<h2>Configuración</h2>
+				<div style="height: 52px;">					
 					<div style="width: 450px; float: left;">
-						<p><label for="bd">BD: </label><input name="bd" id="bd" value="<?php if($_POST['bd']) print $_POST['bd']; else print "bd1"?>" /></p>
-						<p><label for="uid">UID: </label><input name="uid" id="uid" value="<?php if($_POST['uid']) print $_POST['uid']; else print "1"?>" /></p>	
+						<label for="bd">BD: </label><input name="bd" id="bd" value="<?php if($_POST['bd']) print $_POST['bd']; else print "bd1"?>" />
+						<label for="uid">UID: </label><input name="uid" id="uid" value="<?php if($_POST['uid']) print $_POST['uid']; else print "1"?>" />	
 					</div>
 					<div style="width: 450px; float: left;">
-						<p><label for="passwd">Password: </label><input name="passwd" id="passwd" value="<?php if($_POST['passwd']) print $_POST['passwd']; else print "bd1"?>" /></p>
-						<p><label for="url">UID: </label><input name="url" id="url" value="<?php if($_POST['url']) print $_POST['url']; else print "http://localhost:8069/xmlrpc"?>" /></p>
+						<label for="passwd">Password: </label><input name="passwd" id="passwd" value="<?php if($_POST['passwd']) print $_POST['passwd']; else print "bd1"?>" />
+						<label for="url">UID: </label><input name="url" id="url" value="<?php if($_POST['url']) print $_POST['url']; else print "http://localhost:8069/xmlrpc"?>"/>
 					</div>
 				</div>
 	
-				<div>				
-						<h2>Introduce el código para ejecutar: </h2>
-						<textarea style="width: 100%; height: 150px;">$open = new OpenERP($config);
+				<h2>Introduce el código para ejecutar: </h2>
+				<small>La variable <code>$config</code> se sustituirá por los valores arriba indicados</small>
+				<div>									
+					<textarea style="width: 100%; height: 150px;" name="code">$open = new OpenERP($config);
 $p = $open->res_partner->get(1);
 print $p->id;</textarea>
 						<button type="submit">Ejecutar</button>					
@@ -44,21 +58,42 @@ print $p->id;</textarea>
 				if (sizeof($_POST)) {
 					include_once '../openerplib/openerplib.php';
 					
-					print "<h2>Resultado</h2>";
+					function my_exception_handler($e) {
+    					print("<pre>$e</pre>");
+					}
+
+					function my_error_handler($no,$str,$file,$line) {
+    					$e = new ErrorException($str,$no,0,$file,$line);
+    					my_exception_handler($e);     /* Do not throw, simply call error handler with exception object */
+					}
 					
+					set_error_handler('my_error_handler');
+					set_exception_handler('my_exception_handler');
+
 					$config = array(
 	       				'bd'        => $_POST['bd'],
 	       				'uid'       => $_POST['uid'],
 	       				'passwd'    => $_POST['passwd'],
 	       				'url'       => $_POST['url'],
 	   				);
+					$code = $_POST['code'];
 										
-					if (!$config['bd'] OR !$config['uid'] OR !$config['passwd'] OR !$config['url']) {
+					if (!$config['bd'] OR !$config['uid'] OR !$config['passwd'] OR !$config['url'] OR !$code) {
 						echo '<p>Configuración Inválida</p>';
+					} else {
+						/*$open = new OpenERP($config);
+						$p = $open->res_partner->get(1);
+						print $p->id;*/
+						
+						$code_replace = '$config = '.var_export($config, true).';
+'.$code;
+						
+						print "<h2>Resultado</h2>";
+						print "<pre>$code_replace</pre>";
+												
+						eval($code_replace);
+
 					}
-					
-					$open = new OpenERP($config);
-					
 				}
 			?>
 

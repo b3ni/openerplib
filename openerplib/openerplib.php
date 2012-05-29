@@ -381,6 +381,9 @@
 
 			$resp = $this->client->send($msg);
 			$this->checkError($resp);
+			
+			if ($resp->faultCode() != 0)
+				throw new Exception($this->error);
 
 			$ids = array();
 			foreach ($resp->value()->scalarval() as $v)
@@ -561,17 +564,28 @@
 		 */
 		private function checkError($resp) {
 			// 35573, not found
-			if ($resp->faultCode() != 0 AND $resp->faultCode() != 35573) {
-				$this->error = $resp->faultCode();
-				$this->traceback = print_r($resp, true);
-
-				return FALSE;
-			}
-
-			return TRUE;
+			
+			if ($resp->faultCode() == 0)
+				return TRUE;
+				
+			if ($resp->faultCode() == 35573)	// not found
+				return TRUE;
+			
+			
+			$this->error = $resp->faultCode() . ": ". $resp->faultString();
+			$this->traceback = print_r($resp, true);
+			
+			return FALSE;
 		}
 	}
 
+	/**
+	 * OpenERPObject Object
+	 * 
+	 * Gestor que inicia la comunicación en el servidor OpenERP
+	 * 
+	 * @author Benito Rodriguez
+	 */
     class OpenERP {
         protected $bd;
         protected $uid;
@@ -583,11 +597,14 @@
         private $_lastobject = NULL;
         
         public function __construct($config=NULL, $client=NULL) {
+        	error_log("mierda");
             if (isset($config)) {
                 $this->bd = $config['bd'];
                 $this->uid = $config['uid'];
                 $this->pass = $config['passwd'];
                 $this->url = $config['url']. '/object';
+				
+				error_log(print_r($this, true));
             } else {
                 $this->bd = _OPENERPLIB_BD_;
                 $this->uid = _OPENERPLIB_UID_;
@@ -599,6 +616,9 @@
                 $this->client = new xmlrpc_client($this->url);
             else
                 $this->client = $client;
+			
+			if (!$this->client)
+				throw new Exception("No se ha podido crear el cliente XMLRPC");
         }
         
         public function __call($method, $args) {
