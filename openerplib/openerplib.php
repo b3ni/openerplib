@@ -310,7 +310,7 @@
             if (!$this->error)
                 return null;
 		    
-			return $this->error . "[".$this->traceback."]";
+			return $this->error . "[".$this->traceback."][".print_r($this, true)."]";
 		}
 
 		private function _read($model, $ids, $fields) {
@@ -621,6 +621,16 @@
             $this->_lastobject = $erpobject;
             
             return $this->_lastobject;
+        }
+		
+		/**
+         * Devuelve el error de la operación previa
+         */
+        public function getError() {
+            if (!$this->_lastobject)
+                return NULL;
+            
+            return $this->_lastobject->getError();
         }
     } 
 ?>
