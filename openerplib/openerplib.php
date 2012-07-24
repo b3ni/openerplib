@@ -597,14 +597,11 @@
         private $_lastobject = NULL;
         
         public function __construct($config=NULL, $client=NULL) {
-        	error_log("mierda");
             if (isset($config)) {
                 $this->bd = $config['bd'];
                 $this->uid = $config['uid'];
                 $this->pass = $config['passwd'];
                 $this->url = $config['url']. '/object';
-				
-				error_log(print_r($this, true));
             } else {
                 $this->bd = _OPENERPLIB_BD_;
                 $this->uid = _OPENERPLIB_UID_;
