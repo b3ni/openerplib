@@ -8,4 +8,5 @@ $config = array(
 $open = new OpenERP($config);
 
 $p = $open->res_partner->get(1);
-print $p->id;
+
+print $p->id. "/" . $p->name;

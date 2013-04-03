@@ -26,12 +26,15 @@
             if ($name == 'name')
                 return;
 
+            if ($name == 'value' AND is_string($value))
+                $value = utf8_encode($value);
+
             $this->data[$name] = $value;
             $this->change = true;
         }
 
         public function __get($name) {
-            return array_key_exists($name, $this->data) ? $this->data[$name] : null;
+            return $name == 'name' ? $this->name : array_key_exists($name, $this->data) ? $this->data[$name] : null;
         }
     }
 
@@ -41,11 +44,17 @@
 	 * @author Benito Rodriguez
 	 */
 	class OpenERPObject {
+        private $id;
+
         private $config;
         private $client;
+
+        private $model;
+        private $load = false;
         private $fields = array();
 
-		public function __construct($config, $client=NULL) {
+		public function __construct($model, $config, $client=NULL) {
+            $this->model = $model;
             $this->config = $config;
             $this->client = isset($client) ? $client : new xmlrpc_client($this->config['url']);
 
@@ -58,99 +67,151 @@
                 throw new Exception("ID PROPERTY CAN NOT BE CHANGED");
 
             $f = $this->_getField($name);
-            $f->value =
-
-            $field['value'] = $value;
-            $field['changed'] = true;
-
-
-		    $this->_loadModel($this->model);
-
-			if (!array_key_exists($name, $this->fields))
-				throw new Exception("OBJECT HAS NO PROPERTY '".$name."'");
-
-
-
-			if (in_array($this->fields[$name]['type'], array('char', 'text')))
-				$value = utf8_encode($value);
-
-			$this->fields[$name]['value'] = $value;
-			$this->fields[$name]['changed'] = true;
+            $f->value = $value;
 		}
 
-		public function __call($method, $args) {
-		    // fields a leer
-		    if (count($args) == 0)
-                $this->fields_only = array('id'); // solo id
-            else if (count($args) == 1 AND is_array($args[0]) AND count($args[0]) > 0)
-                $this->fields_only = $args[0];
-            else if (count($args) == 1 AND $args[0] == '__ALL')
-                $this->fields_only = null;
-            else
-                $this->fields_only = $args;
+        public function __get($name) {
+            if ($name == 'id')
+                return $this->id;
 
-			// si no está cargado lee el modelo
-			if (!$this->_isLoad()) {
-                $this->_loadModel($method);
-                return $this;
+            $method_call = new ReflectionMethod('OpenERPObject', '__call');
+            return $method_call->invoke($this, $name, null);
+        }
+
+        public function __call($method, $args) {
+            $fields_read = count($args) == 1 AND is_array($args[0]) ? $args[0] : $args;
+            $this->_read_model($fields_read);
+
+            $name_field = $this->_getNameField($method);
+
+
+        }
+
+        private function _read_model($fields_read) {
+            if ($fields_read === null OR $this->load)
+                return;
+
+            $msg = new xmlrpcmsg('execute');
+            $msg->addParam(new xmlrpcval($this->config['bd'], "string"));
+            $msg->addParam(new xmlrpcval($this->config['uid'], "int"));
+            $msg->addParam(new xmlrpcval($this->config['pass'], "string"));
+            $msg->addParam(new xmlrpcval($this->model, "string"));
+            $msg->addParam(new xmlrpcval("read", "string"));
+
+            // key
+            $arr[] = new xmlrpcval($this->id, "int");
+            $msg->addParam(new xmlrpcval($arr, "array"));
+
+            // fields
+            $fields_rpc = array();
+            foreach($fields_read as $value) {
+                if (!is_array($value))
+                    $v = new xmlrpcval($value, "string");
+                else
+                    $v = new xmlrpcval($value[0], $value[1]);
+                $fields_rpc[] = $v;
             }
+            $msg->addParam(new xmlrpcval($fields_rpc, "array"));
 
-			// leemos fields
-			$name_field = $this->_getNameField($method);
-			$type_field = $this->fields[$name_field]['type'];
+            $resp = $this->client->send($msg);
+            $this->checkError($resp);
 
-			switch($type_field) {
-				case 'many2one':
-					$model = str_replace(".", "_", $this->fields[$name_field]['relation']);
+            if (!$resp->value())
+                return array();
 
-					// si no tiene enlace al objeto
-					if (!$this->fields[$name_field]['value'])
-						return NULL;
+            $fields_return = array();
+            foreach($resp->value()->scalarval() as $key => $r) {
+                $fields_return[$key] = array();
+                foreach ($r->scalarval() as $f => $v)
+                    $fields_return[$key][$f] = $v->scalarval();
+            }
+        }
 
-					$method_call = new ReflectionMethod('OpenERPObject', '__call');
-					$method_get = new ReflectionMethod('OpenERPObject', 'get');
+        private function _getNameField($name) {
+            $name_ralation = str_replace("_", ".", $name);
 
-					$many = new OpenERPObject(NULL, $this->client);
-					$many = $method_call->invoke($many, $model, $args);
-					$many = $method_get->invoke($many, $this->fields[$name_field]['value']);
+            // chequemos relaciones
+            foreach($this->fields as $key => $f)
+                if ($f['relation'] == $name_ralation)
+                    return $key;
 
-					return $many;
-					break;
+            // objetos simples
+            if (!array_key_exists($name, $this->fields))
+                throw new Exception("OBJECT HAS NO PROPERTY '".$name."'");
 
-                case 'one2many':
-                    $model = str_replace(".", "_", $this->fields[$name_field]['relation']);
+            return $name;
+        }
 
-                    $method_call = new ReflectionMethod('OpenERPObject', '__call');
-                    $method_get = new ReflectionMethod('OpenERPObject', 'get');
+		// public function __call($method, $args) {
+		//     // fields a leer
+		//     if (count($args) == 0)
+  //               $this->fields_only = array('id'); // solo id
+  //           else if (count($args) == 1 AND is_array($args[0]) AND count($args[0]) > 0)
+  //               $this->fields_only = $args[0];
+  //           else if (count($args) == 1 AND $args[0] == '__ALL')
+  //               $this->fields_only = null;
+  //           else
+  //               $this->fields_only = $args;
 
-                    $manys = array();
+		// 	// si no está cargado lee el modelo
+		// 	if (!$this->_isLoad()) {
+  //               $this->_loadModel($method);
+  //               return $this;
+  //           }
 
-                    foreach ($this->fields[$name_field]['value'] as $v) {
-                        $obj = new OpenERPObject(NULL, $this->client);
-                        $obj = $method_call->invoke($obj, $model, $args);
-                        $obj = $method_get->invoke($obj, $v);
+		// 	// leemos fields
+		// 	$name_field = $this->_getNameField($method);
+		// 	$type_field = $this->fields[$name_field]['type'];
 
-                        $manys[] = $obj;
-                    }
+		// 	switch($type_field) {
+		// 		case 'many2one':
+		// 			$model = str_replace(".", "_", $this->fields[$name_field]['relation']);
 
-                    return $manys;
-                    break;
+		// 			// si no tiene enlace al objeto
+		// 			if (!$this->fields[$name_field]['value'])
+		// 				return NULL;
 
-				default:
-					if (!in_array($name_field, $this->_getFields2Read()))
-						throw new Exception("FIELD '".$name_field."' NOT READ");
+		// 			$method_call = new ReflectionMethod('OpenERPObject', '__call');
+		// 			$method_get = new ReflectionMethod('OpenERPObject', 'get');
 
-					return $this->fields[$name_field]['value'];
-					break;
-			}
+		// 			$many = new OpenERPObject(NULL, $this->client);
+		// 			$many = $method_call->invoke($many, $model, $args);
+		// 			$many = $method_get->invoke($many, $this->fields[$name_field]['value']);
 
-			parent::__call($method, $args);
-		}
+		// 			return $many;
+		// 			break;
 
-		public function __get($name) {
-			$method_call = new ReflectionMethod('OpenERPObject', '__call');
-			return $method_call->invoke($this, $name, null);
-		}
+  //               case 'one2many':
+  //                   $model = str_replace(".", "_", $this->fields[$name_field]['relation']);
+
+  //                   $method_call = new ReflectionMethod('OpenERPObject', '__call');
+  //                   $method_get = new ReflectionMethod('OpenERPObject', 'get');
+
+  //                   $manys = array();
+
+  //                   foreach ($this->fields[$name_field]['value'] as $v) {
+  //                       $obj = new OpenERPObject(NULL, $this->client);
+  //                       $obj = $method_call->invoke($obj, $model, $args);
+  //                       $obj = $method_get->invoke($obj, $v);
+
+  //                       $manys[] = $obj;
+  //                   }
+
+  //                   return $manys;
+  //                   break;
+
+		// 		default:
+		// 			if (!in_array($name_field, $this->_getFields2Read()))
+		// 				throw new Exception("FIELD '".$name_field."' NOT READ");
+
+		// 			return $this->fields[$name_field]['value'];
+		// 			break;
+		// 	}
+
+		// 	parent::__call($method, $args);
+		// }
+
+
 
         public function __toString() {
             return (string) $this->id;
