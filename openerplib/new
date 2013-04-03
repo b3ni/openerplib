@@ -1,0 +1,11 @@
+$config = array(
+    'bd'        => '26ene12',
+    'uid'       => 53,
+    'passwd'    => '978w77err',
+    'url'       => 'http://172.26.0.202:8069/xmlrpc',
+);
+
+$open = new OpenERP($config);
+
+$p = $open->res_partner->get(1);
+print $p->id;
