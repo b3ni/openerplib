@@ -520,6 +520,7 @@
                 case 'text':
                 case 'selection':
                 case 'binary':
+                case 'boolean':
                     $type = "string";                    
                     break;
                 case 'integer':
