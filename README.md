@@ -1,5 +1,9 @@
 # openerplib
 
+> ⚠️ **Proyecto sin mantenimiento.** Esta librería está pensada para **OpenERP 6/7** y **PHP 5**.
+> No funciona con PHP 8 (la `xmlrpc.inc` incluida usa `each()`, eliminada en PHP 8) y no se ha
+> probado con PHP 7 ni con versiones modernas de Odoo.
+
 openerplib es una librería para PHP que permite realizar operaciones xml-rpc con [OpenERP](http://www.openerp.com/)
 cómodamente.
 
@@ -7,8 +11,10 @@ Está inspirada en ORM de [Django](https://www.djangoproject.com/)
 
 ## Requeriments
 
-openerlib depende de:
+openerplib depende de:
 
+* PHP 5 (no compatible con PHP 8; PHP 7 no probado)
+* Servidor OpenERP 6.x o 7.x (API XML-RPC `/xmlrpc/object`)
 * xmlrpc.inc >= 1.174 http://phpxmlrpc.sourceforge.net/ (incluida)
 
 ## Installation
